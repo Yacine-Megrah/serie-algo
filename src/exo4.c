@@ -1,166 +1,153 @@
-// exo4.c
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
-// Function to generate random array
-void genererTab(int *T, int n, int k) {
-    for(int i = 0; i < n; i++) {
+#include "./h/strassen.h"
+
+// 1. Function to generate an array of n integers between 0 and k
+void genererTab(int T[], int n, int k) {
+    srand(time(0));
+    for (int i = 0; i < n; i++) {
         T[i] = rand() % (k + 1);
     }
 }
 
-// Sequential search
-int rechercheSeq(int *T, int n, int x) {
-    for(int i = 0; i < n; i++) {
-        if(T[i] == x) return 1;
+// 2. Function to perform sequential search
+int rechercheSeq(int T[], int n, int x) {
+    for (int i = 0; i < n; i++) {
+        if (T[i] == x) {
+            return 1;
+        }
     }
     return 0;
 }
 
-// Bubble sort (simple sorting algorithm)
-void Trier(int *T, int n) {
-    for(int i = 0; i < n-1; i++) {
-        for(int j = 0; j < n-i-1; j++) {
-            if(T[j] > T[j+1]) {
-                int temp = T[j];
-                T[j] = T[j+1];
-                T[j+1] = temp;
+// 3. Function to sort the array
+void Trier(int T[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = i + 1; j < n; j++) {
+            if (T[i] > T[j]) {
+                int temp = T[i];
+                T[i] = T[j];
+                T[j] = temp;
             }
         }
     }
 }
 
-// Binary search
-int rechercheDicho(int *T, int n, int x) {
+// 4. Function to perform binary search
+int rechercheDicho(int T[], int n, int x) {
     int left = 0, right = n - 1;
-    
-    while(left <= right) {
+    while (left <= right) {
         int mid = left + (right - left) / 2;
-        
-        if(T[mid] == x) return 1;
-        if(T[mid] < x) left = mid + 1;
-        else right = mid - 1;
+        if (T[mid] == x) {
+            return 1;
+        }
+        if (T[mid] < x) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
     }
     return 0;
 }
 
-// Generate random matrix
-void genererMat(int **M, int n, int m, int k) {
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j < m; j++) {
+// 6. Function to generate a matrix of (n x m) integers between 0 and k
+void genererMat(int M[][MAX_SIZE], int n, int m, int k) {
+    srand(time(0));
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
             M[i][j] = rand() % (k + 1);
         }
     }
 }
 
-// Standard matrix multiplication
-void multiplyMatrixStandard(int **A, int **B, int **C, int n) {
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j < n; j++) {
+// 7. Function to multiply matrices using the usual method
+void multiplicationUsuelle(int A[][MAX_SIZE], int B[][MAX_SIZE], int C[][MAX_SIZE], int n, int m, int p) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < p; j++) {
             C[i][j] = 0;
-            for(int k = 0; k < n; k++) {
+            for (int k = 0; k < m; k++) {
                 C[i][j] += A[i][k] * B[k][j];
             }
         }
     }
 }
 
-// Helper function for Strassen's algorithm
-void addMatrix(int **A, int **B, int **C, int n) {
-    for(int i = 0; i < n; i++)
-        for(int j = 0; j < n; j++)
-            C[i][j] = A[i][j] + B[i][j];
+// 7. Function to multiply matrices using Strassen's method
+// Note: Strassen's method is complex and requires additional helper functions
+// For simplicity, this is a placeholder function
+void multiplicationStrassen(int A[][MAX_SIZE], int B[][MAX_SIZE], int C[][MAX_SIZE], int n) {
+    
 }
 
-void subtractMatrix(int **A, int **B, int **C, int n) {
-    for(int i = 0; i < n; i++)
-        for(int j = 0; j < n; j++)
-            C[i][j] = A[i][j] - B[i][j];
+typedef struct time_mark_args{
+    int A[MAX_SIZE][MAX_SIZE];
 }
 
-// Strassen's matrix multiplication (simplified version)
-void strassenMultiply(int **A, int **B, int **C, int n) {
-    if(n <= 64) { // Use standard multiplication for small matrices
-        multiplyMatrixStandard(A, B, C, n);
-        return;
+double time_mark(long long (*func)(int), int n) {
+    double total_time = 0;
+
+    for (int iter = 0; iter < 4; iter++) {
+        clock_t start = clock();
+        
+        func(n);
+        
+        clock_t end = clock();
+        total_time += ((double)(end - start)) / CLOCKS_PER_SEC;
     }
     
-    int k = n/2;
-    
-    // Allocate memory for submatrices
-    // ... (allocation code would go here)
-    
-    // Implement Strassen's algorithm with 7 recursive calls
-    // This is a placeholder for the full implementation
-    // as it requires significant additional memory management
-    
-    // For now, we'll use standard multiplication
-    multiplyMatrixStandard(A, B, C, n);
+    double avg_time = total_time / 4;
+    return avg_time;
 }
 
 int main() {
-    srand(time(NULL));
-    
-    // Test array operations
-    int n = 1000;
-    int k = 100;
-    int *T = malloc(n * sizeof(int));
-    
+    int n = 10, k = 50;
+    int T[10];
     genererTab(T, n, k);
-    
-    // Measure search operations
-    clock_t start = clock();
-    rechercheSeq(T, n, 50);
-    clock_t end = clock();
-    printf("Sequential search time: %f seconds\n", 
-           ((double)(end - start)) / CLOCKS_PER_SEC);
-    
+
+    printf("Generated array: ");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", T[i]);
+    }
+    printf("\n");
+
+    int x = 25;
+    printf("Sequential search for %d: %d\n", x, rechercheSeq(T, n, x));
+
     Trier(T, n);
-    
-    start = clock();
-    rechercheDicho(T, n, 50);
-    end = clock();
-    printf("Binary search time: %f seconds\n", 
-           ((double)(end - start)) / CLOCKS_PER_SEC);
-    
-    free(T);
-    
-    // Test matrix operations
-    int matrix_size = 100;
-    int **A = malloc(matrix_size * sizeof(int*));
-    int **B = malloc(matrix_size * sizeof(int*));
-    int **C = malloc(matrix_size * sizeof(int*));
-    
-    for(int i = 0; i < matrix_size; i++) {
-        A[i] = malloc(matrix_size * sizeof(int));
-        B[i] = malloc(matrix_size * sizeof(int));
-        C[i] = malloc(matrix_size * sizeof(int));
+    printf("Sorted array: ");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", T[i]);
     }
-    
-    genererMat(A, matrix_size, matrix_size, k);
-    genererMat(B, matrix_size, matrix_size, k);
-    
-    start = clock();
-    multiplyMatrixStandard(A, B, C, matrix_size);
-    end = clock();
-    printf("Standard matrix multiplication time: %f seconds\n", 
-           ((double)(end - start)) / CLOCKS_PER_SEC);
-    
-    start = clock();
-    strassenMultiply(A, B, C, matrix_size);
-    end = clock();
-    printf("Strassen's matrix multiplication time: %f seconds\n", 
-           ((double)(end - start)) / CLOCKS_PER_SEC);
-    
-    for(int i = 0; i < matrix_size; i++) {
-        free(A[i]);
-        free(B[i]);
-        free(C[i]);
+    printf("\n");
+
+    printf("Binary search for %d: %d\n", x, rechercheDicho(T, n, x));
+
+    int M[MAX_SIZE][MAX_SIZE];
+    int rows = 5, cols = 5;
+    genererMat(M, rows, cols, k);
+
+    printf("Generated matrix:\n");
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            printf("%d ", M[i][j]);
+        }
+        printf("\n");
     }
-    free(A);
-    free(B);
-    free(C);
-    
+
+    int A[MAX_SIZE][MAX_SIZE], B[MAX_SIZE][MAX_SIZE], C[MAX_SIZE][MAX_SIZE];
+    genererMat(A, rows, cols, k);
+    genererMat(B, cols, rows, k);
+    multiplicationUsuelle(A, B, C, rows, cols, rows);
+
+    printf("Result of usual matrix multiplication:\n");
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < rows; j++) {
+            printf("%d ", C[i][j]);
+        }
+        printf("\n");
+    }
+
     return 0;
 }

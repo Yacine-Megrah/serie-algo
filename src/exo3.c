@@ -60,7 +60,7 @@ void measureSums(FILE *fp, int tests) {
 
     int test_numbers[tests];
     for(int i = 0; i < tests; i++) {
-        test_numbers[i] = 1200 * i * 17 + (rand() % 100);
+        test_numbers[i] = 1000000 * (i+1) + (rand() % 100000);
     }
     fprintf(fp, "n,sum_iter,sum_direct,sum2_iter,sum2_direct,sum3_iter,sum3_direct\n");
     
